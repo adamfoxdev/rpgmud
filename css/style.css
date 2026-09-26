@@ -2,6 +2,7 @@
  * Havenbrook MUD — styles
  * ========================================================================== */
 :root {
+  color-scheme: dark;
   --bg: #0c0e13;
   --bg-2: #11141b;
   --panel: #151922;
@@ -281,6 +282,11 @@ input { font: inherit; color: inherit; }
 .stats-roll { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .stats { display: grid; grid-template-columns: repeat(5, 64px); gap: 6px; }
 .creator-foot { display: flex; justify-content: flex-end; margin-top: 8px; }
+
+.confirm-card { width: min(420px, 100%); }
+.confirm-title { font-family: var(--serif); font-size: 20px; color: var(--gold-2); margin-bottom: 8px; }
+.confirm-text { color: var(--muted); margin: 0 0 18px; }
+.confirm-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 
 /* ---------------------------------------------------------------- menus */
 .ctxmenu {

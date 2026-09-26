@@ -76,12 +76,12 @@
   game.on('playerdeath', () => toast('You have died'));
   game.on('move', () => { ui.dirty = true; hideMenu(); });
   game.on('mobdeath', (e) => { if (ui.selected === e.uid) ui.selected = null; });
-  game.on('restart', () => {
-    if (confirm('Abandon this character and create a new one? Your saved progress will be deleted.')) {
-      store.del(SAVE_KEY);
-      window.removeEventListener('beforeunload', save);
-      location.reload();
-    }
+  game.on('restart', () => { $('#confirm').hidden = false; $('#confirm-no').focus(); });
+  $('#confirm-no').addEventListener('click', () => { $('#confirm').hidden = true; input.focus(); });
+  $('#confirm-yes').addEventListener('click', () => {
+    store.del(SAVE_KEY);
+    window.removeEventListener('beforeunload', save);
+    location.reload();
   });
 
   function save() { if (game.player) store.set(SAVE_KEY, game.serialize()); }
@@ -179,7 +179,7 @@
   /* ================================================================ keyboard */
   const NUMPAD = { Numpad8: 'n', Numpad2: 's', Numpad4: 'w', Numpad6: 'e', Numpad9: 'u', Numpad3: 'd', Numpad5: 'look' };
   document.addEventListener('keydown', (e) => {
-    if (!game.player || !$('#creator').hidden) return;
+    if (!game.player || !$('#creator').hidden || !$('#confirm').hidden) return;
     if (NUMPAD[e.code] && (document.activeElement !== input || !input.value)) {
       e.preventDefault();
       send(NUMPAD[e.code]);

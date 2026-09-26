@@ -114,6 +114,14 @@
     </div>
   </div>
 
+  <div class="modal" id="confirm" hidden>
+    <div class="modal-card confirm-card" role="alertdialog" aria-labelledby="confirm-title">
+      <div class="confirm-title" id="confirm-title">Start a new character?</div>
+      <p class="confirm-text">This deletes your current hero and their saved progress. It cannot be undone.</p>
+      <div class="confirm-actions"><button class="btn ghost" id="confirm-no" type="button">Keep playing</button><button class="btn danger" id="confirm-yes" type="button">Delete and start over</button></div>
+    </div>
+  </div>
+
   <div class="ctxmenu" id="ctxmenu" hidden></div>
   <div class="tooltip" id="tooltip" hidden></div>
   <div class="toast" id="toast" hidden></div>
