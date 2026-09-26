@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Havenbrook MUD</title>
+  <meta name="description" content="A single-player DikuMUD-style RPG in HTML5, with an animated scene view, auto-mapper and modern controls.">
+  <meta name="theme-color" content="#0c0e13">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">⚔</span><span class="brand-name">Havenbrook</span><span class="brand-sub">a modern DikuMUD</span></div>
+      <div class="whoami" id="whoami"></div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-help" title="Help (F1)">?</button>
+        <button class="icon-btn" id="btn-save" title="Save">💾</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="col-main">
+        <div class="scene-wrap" id="scene-wrap">
+          <canvas id="scene" aria-label="Scene view of the current room"></canvas>
+          <div class="scene-hud">
+            <div class="scene-title"><div id="room-name"></div><div id="room-area"></div></div>
+            <div class="scene-clock" id="clock"></div>
+          </div>
+        </div>
+
+        <div class="terminal-wrap">
+          <div class="terminal" id="terminal" role="log" aria-live="polite"></div>
+          <button class="new-msgs" id="new-msgs" hidden>New messages ↓</button>
+        </div>
+
+        <form class="cmdline" id="cmdform" autocomplete="off">
+          <span class="caret">›</span>
+          <input id="cmd" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="Type a command… try 'look', 'help', or click things" aria-label="Command">
+          <button type="submit" class="send" aria-label="Send">⏎</button>
+        </form>
+
+        <div class="actionbar">
+          <div class="compass" id="compass">
+            <button data-dir="u" class="c-up" title="Up (Numpad 9)">▲<small>up</small></button>
+            <button data-dir="n" class="c-n" title="North (Numpad 8)">N</button>
+            <button data-dir="d" class="c-down" title="Down (Numpad 3)">▼<small>dn</small></button>
+            <button data-dir="w" class="c-w" title="West (Numpad 4)">W</button>
+            <button data-cmd="look" class="c-look" title="Look (Numpad 5)">👁</button>
+            <button data-dir="e" class="c-e" title="East (Numpad 6)">E</button>
+            <button data-dir="s" class="c-s" title="South (Numpad 2)">S</button>
+          </div>
+          <div class="actions">
+            <div class="quick" id="quick"></div>
+            <div class="hotbar" id="hotbar"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="col-side">
+        <div class="card vitals">
+          <div class="bar hp"><span class="lbl">HP</span><div class="track"><div class="fill" id="hp-fill"></div></div><span class="val" id="hp-val"></span></div>
+          <div class="bar mana" id="mana-row"><span class="lbl">MP</span><div class="track"><div class="fill" id="mana-fill"></div></div><span class="val" id="mana-val"></span></div>
+          <div class="bar mv"><span class="lbl">MV</span><div class="track"><div class="fill" id="mv-fill"></div></div><span class="val" id="mv-val"></span></div>
+          <div class="bar xp"><span class="lbl">XP</span><div class="track"><div class="fill" id="xp-fill"></div></div><span class="val" id="xp-val"></span></div>
+          <div class="tickline" title="Time until the next tick (regeneration)"><div class="tick-fill" id="tick-fill"></div></div>
+          <div class="target" id="target" hidden>
+            <div class="t-icon" id="t-icon"></div>
+            <div class="t-body">
+              <div class="t-name"><span id="t-name"></span><span class="t-lvl" id="t-lvl"></span></div>
+              <div class="track"><div class="fill" id="t-fill"></div></div>
+              <div class="t-cond" id="t-cond"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mapcard">
+          <div class="card-h"><span>Map</span><span class="map-meta" id="map-meta"></span>
+            <span class="map-zoom"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button></span></div>
+          <canvas id="minimap" aria-label="Minimap. Click an explored room to travel there."></canvas>
+        </div>
+
+        <div class="card tabs">
+          <div class="tab-h" role="tablist">
+            <button role="tab" data-tab="pack" class="active">Pack</button>
+            <button role="tab" data-tab="gear">Gear</button>
+            <button role="tab" data-tab="skills">Skills</button>
+            <button role="tab" data-tab="hero">Hero</button>
+          </div>
+          <div class="tab-body" id="tab-body"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Character creation -->
+  <div class="modal" id="creator" hidden>
+    <div class="modal-card creator">
+      <div class="creator-head">
+        <div class="creator-title">Havenbrook</div>
+        <div class="creator-sub">A tale of steel, sorcery and sewer rats</div>
+      </div>
+      <div class="continue" id="continue" hidden></div>
+      <label class="field"><span>Name your hero</span><input id="cc-name" maxlength="14" placeholder="e.g. Brynn" spellcheck="false"></label>
+      <div class="field"><span>Race</span><div class="cards" id="cc-races"></div></div>
+      <div class="field"><span>Class</span><div class="cards" id="cc-classes"></div></div>
+      <div class="field"><span>Attributes</span>
+        <div class="stats-roll"><div class="stats" id="cc-stats"></div><button class="btn ghost" id="cc-reroll" type="button">🎲 Reroll</button></div>
+      </div>
+      <div class="creator-foot"><button class="btn primary" id="cc-begin" type="button">Begin your adventure</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="confirm" hidden>
+    <div class="modal-card confirm-card" role="alertdialog" aria-labelledby="confirm-title">
+      <div class="confirm-title" id="confirm-title">Start a new character?</div>
+      <p class="confirm-text">This deletes your current hero and their saved progress. It cannot be undone.</p>
+      <div class="confirm-actions"><button class="btn ghost" id="confirm-no" type="button">Keep playing</button><button class="btn danger" id="confirm-yes" type="button">Delete and start over</button></div>
+    </div>
+  </div>
+
+  <div class="ctxmenu" id="ctxmenu" hidden></div>
+  <div class="tooltip" id="tooltip" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/minimap.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
