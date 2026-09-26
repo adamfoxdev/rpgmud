@@ -1,0 +1,11 @@
+{
+  "name": "havenbrook-mud",
+  "version": "1.0.0",
+  "description": "A single-player DikuMUD-style RPG in HTML5 with a visual scene view and auto-mapper.",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "start": "python3 -m http.server 8000"
+  },
+  "license": "MIT"
+}
